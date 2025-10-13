@@ -1,0 +1,47 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "identifier": "default",
+  "description": "Default permissions for the application",
+  "windows": ["main"],
+  "permissions": [
+    "core:default",
+    "core:path:default",
+    {
+      "identifier": "shell:allow-execute",
+      "allow": [
+        {
+          "name": "binaries/cwebp",
+          "sidecar": true,
+          "args": true
+        }
+      ]
+    },
+    "shell:allow-open",
+    "dialog:allow-open",
+    "dialog:allow-save",
+    "fs:allow-read-file",
+    "fs:allow-write-file",
+    "fs:allow-remove",
+    "fs:allow-exists",
+    "fs:allow-mkdir",
+    "fs:allow-appcache-write",
+    "fs:allow-appcache-write-recursive",
+    "fs:allow-appcache-read",
+    "fs:allow-appcache-read-recursive",
+    "fs:allow-home-read",
+    "fs:allow-home-write",
+    "fs:allow-home-write-recursive",
+    "fs:allow-desktop-read",
+    "fs:allow-desktop-write",
+    "fs:allow-desktop-write-recursive",
+    "fs:allow-document-read",
+    "fs:allow-document-write",
+    "fs:allow-document-write-recursive",
+    "fs:allow-download-read",
+    "fs:allow-download-write",
+    "fs:allow-download-write-recursive",
+    "fs:allow-picture-read",
+    "fs:allow-picture-write",
+    "fs:allow-picture-write-recursive"
+  ]
+}
