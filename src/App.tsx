@@ -1,7 +1,8 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
 import { Command } from "@tauri-apps/plugin-shell";
 import { save } from "@tauri-apps/plugin-dialog";
+import { getVersion } from "@tauri-apps/api/app";
 import "./App.css";
 
 interface ConversionResult {
@@ -15,6 +16,11 @@ function App() {
   const [quality, setQuality] = useState(80);
   const [results, setResults] = useState<ConversionResult[]>([]);
   const [isConverting, setIsConverting] = useState(false);
+  const [version, setVersion] = useState<string>("");
+
+  useEffect(() => {
+    getVersion().then(setVersion);
+  }, []);
 
   const convertToWebP = async (file: File) => {
     const originalName = file.name;
@@ -305,6 +311,13 @@ function App() {
           </div>
         )}
       </div>
+
+      {/* Footer with version */}
+      <footer className="mt-8 text-center">
+        <p className="text-sm text-gray-600">
+          Version {version || "loading..."}
+        </p>
+      </footer>
     </div>
   );
 }
