@@ -51,7 +51,6 @@ export const useDragDrop = (
 
                 files.push(file);
               } catch (error) {
-                // Silently handle errors during drag and drop
               }
             }
 
