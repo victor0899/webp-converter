@@ -2,8 +2,7 @@
 
 A simple desktop app to convert images to WebP format. No upload, no limits, no BS.
 
-<!-- Add screenshot here -->
-<!-- ![App Screenshot](docs/screenshot.png) -->
+![App Interface](docs/app-interface.png)
 
 ## Why this exists
 
@@ -55,6 +54,17 @@ The app will be in `src-tauri/target/release/bundle/`
 2. Drag images or click to select
 3. Choose where to save
 4. Done
+
+## Screenshots
+
+### Converting Images
+![Converting](docs/converting.png)
+
+### Conversion Results
+![Results](docs/results.png)
+
+### Reveal in Finder
+![Reveal in Finder](docs/reveal-in-finder.png)
 
 ## Tech stack
 
