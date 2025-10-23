@@ -13,6 +13,7 @@ interface ConversionResult {
   output: string;
   status: "success" | "error" | "converting";
   message?: string;
+  conversionTime?: number;
 }
 
 function App() {
@@ -169,14 +170,16 @@ function App() {
         return;
       }
 
-      // Execute cwebp command using sidecar
       const command = Command.sidecar("binaries/cwebp", [
         tempInputPath,
         "-o",
         outputPath,
       ]);
 
+      const startTime = Date.now();
       const output = await command.execute();
+      const endTime = Date.now();
+      const conversionTime = ((endTime - startTime) / 1000).toFixed(2);
 
       if (output.code === 0) {
         setResults((prev) =>
@@ -186,7 +189,8 @@ function App() {
                   ...r,
                   output: outputPath,
                   status: "success",
-                  message: "Converted successfully!",
+                  message: `Converted successfully in ${conversionTime}s`,
+                  conversionTime: parseFloat(conversionTime),
                 }
               : r
           )
