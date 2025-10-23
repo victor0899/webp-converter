@@ -23,7 +23,18 @@ Converts **PNG, JPEG, GIF, TIFF** → **WebP**
 
 ## Installation
 
-> **Note:** No pre-built releases yet. You'll need to build from source.
+### Download Pre-built Releases
+
+Download the latest version for your platform from the [Releases page](https://github.com/victor0899/webp-converter/releases/latest):
+
+- **macOS (Apple Silicon - M1/M2/M3):** Download `.dmg` file (aarch64)
+- **macOS (Intel):** Download `.dmg` file (x64)
+- **Windows:** Download `.exe` or `.msi` installer
+- **Linux:** Download `.AppImage` or `.deb` package
+
+### Build from Source
+
+If you prefer to build it yourself:
 
 **Requirements:**
 - Node.js / pnpm
