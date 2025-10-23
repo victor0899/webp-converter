@@ -30,6 +30,21 @@ Download the latest version from the [Releases page](https://github.com/victor08
 
 > **Note:** Currently only available for Apple Silicon Macs. Intel Mac users can build from source below.
 
+#### macOS Security Warning
+
+When you first open the app, macOS will show a warning that the app is "damaged" or can't be opened. This is normal for unsigned apps.
+
+**To fix this:**
+
+1. Open **Terminal** (Applications → Utilities → Terminal)
+2. Run this command:
+   ```bash
+   xattr -cr /Applications/webp-converter.app
+   ```
+3. Now you can open the app normally
+
+**Why this happens:** This app is not signed with an Apple Developer certificate ($99/year). The app is safe, macOS just doesn't recognize it. This is common for free open-source apps.
+
 ### Build from Source
 
 If you prefer to build it yourself:
