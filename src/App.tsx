@@ -5,6 +5,7 @@ import { save } from "@tauri-apps/plugin-dialog";
 import { getVersion } from "@tauri-apps/api/app";
 import { getCurrentWebview } from "@tauri-apps/api/webview";
 import { revealItemInDir } from "@tauri-apps/plugin-opener";
+import { FolderIcon, ArrowUpTrayIcon } from "@heroicons/react/24/outline";
 import "./App.css";
 
 interface ConversionResult {
@@ -301,7 +302,8 @@ function App() {
           } ${isConverting ? "opacity-50 cursor-not-allowed" : ""}`}
         >
           <input {...getInputProps()} />
-          <div className="space-y-2">
+          <div className="space-y-3">
+            <ArrowUpTrayIcon className="h-12 w-12 mx-auto text-gray-400" />
             {isDragActive ? (
               <p className="text-lg text-blue-600 font-medium">
                 Drop the images here...
@@ -338,9 +340,10 @@ function App() {
                     {result.output && (
                       <button
                         onClick={() => openFile(result.output)}
-                        className="text-sm text-blue-600 hover:text-blue-800 underline cursor-pointer text-left"
+                        className="flex items-center gap-1.5 text-sm text-blue-600 hover:text-blue-800 underline cursor-pointer text-left"
                         title="Click to open file location"
                       >
+                        <FolderIcon className="h-4 w-4 flex-shrink-0" />
                         {result.output}
                       </button>
                     )}
