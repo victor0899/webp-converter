@@ -25,12 +25,11 @@ Converts **PNG, JPEG, GIF, TIFF** → **WebP**
 
 ### Download Pre-built Releases
 
-Download the latest version for your platform from the [Releases page](https://github.com/victor0899/webp-converter/releases/latest):
+Download the latest version from the [Releases page](https://github.com/victor0899/webp-converter/releases/latest):
 
-- **macOS (Apple Silicon - M1/M2/M3):** Download `.dmg` file (aarch64)
-- **macOS (Intel):** Download `.dmg` file (x64)
-- **Windows:** Download `.exe` or `.msi` installer
-- **Linux:** Download `.AppImage` or `.deb` package
+- **macOS (Apple Silicon - M1/M2/M3):** Download `.dmg` file
+
+> **Note:** Currently only available for Apple Silicon Macs. Intel Mac users can build from source below.
 
 ### Build from Source
 
