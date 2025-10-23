@@ -3,6 +3,7 @@ import { useDropzone } from "react-dropzone";
 import { Command } from "@tauri-apps/plugin-shell";
 import { save } from "@tauri-apps/plugin-dialog";
 import { getVersion } from "@tauri-apps/api/app";
+import { getCurrentWebview } from "@tauri-apps/api/webview";
 import "./App.css";
 
 interface ConversionResult {
@@ -20,11 +21,104 @@ function App() {
 
   useEffect(() => {
     getVersion().then(setVersion);
+
+    // Listen for Tauri's native drag and drop events
+    let unlisten: (() => void) | null = null;
+    const processedEventIds = new Set<number>(); // Track processed event IDs
+    let processingPromise: Promise<void> | null = null; // Track ongoing processing
+    let cleanupTimeout: NodeJS.Timeout | null = null;
+
+    const setupDragDrop = async () => {
+      const webview = getCurrentWebview();
+      unlisten = await webview.onDragDropEvent(async (event) => {
+        if (event.payload.type === "drop") {
+          // Check if this event ID has already been processed
+          if (processedEventIds.has(event.id)) {
+            return;
+          }
+
+          // Mark this event ID as processed FIRST (before checking processingPromise)
+          processedEventIds.add(event.id);
+
+          // If we're already processing, ignore this event
+          if (processingPromise) {
+            return;
+          }
+
+          // Clear old event IDs after 1 second to prevent memory leak
+          if (cleanupTimeout) clearTimeout(cleanupTimeout);
+          cleanupTimeout = setTimeout(() => {
+            processedEventIds.clear();
+          }, 1000);
+
+          const paths = event.payload.paths as string[];
+
+          // Create processing promise
+          processingPromise = (async () => {
+            setIsConverting(true);
+
+            // Process each dropped file
+            for (const path of paths) {
+              try {
+                // Read the file from the path
+                const { readFile } = await import("@tauri-apps/plugin-fs");
+                const fileData = await readFile(path);
+
+                // Get filename from path
+                const fileName = path.split(/[\\/]/).pop() || "unknown";
+
+                // Create a File object from the data
+                const blob = new Blob([fileData]);
+                const file = new File([blob], fileName, { type: getMimeType(fileName) });
+
+                await convertToWebP(file);
+              } catch (error) {
+                // Silently handle errors during drag and drop
+              }
+            }
+
+            setIsConverting(false);
+          })();
+
+          // Wait for processing to complete
+          await processingPromise;
+          processingPromise = null;
+        }
+      });
+    };
+
+    setupDragDrop();
+
+    // Cleanup: unregister the listener when component unmounts
+    return () => {
+      if (unlisten) {
+        unlisten();
+      }
+      if (cleanupTimeout) clearTimeout(cleanupTimeout);
+    };
   }, []);
+
+  // Helper function to get MIME type from filename
+  const getMimeType = (filename: string): string => {
+    const ext = filename.split(".").pop()?.toLowerCase();
+    switch (ext) {
+      case "png":
+        return "image/png";
+      case "jpg":
+      case "jpeg":
+        return "image/jpeg";
+      case "gif":
+        return "image/gif";
+      case "tiff":
+      case "tif":
+        return "image/tiff";
+      default:
+        return "application/octet-stream";
+    }
+  };
 
   const convertToWebP = async (file: File) => {
     const originalName = file.name;
-    console.log(`[${originalName}] Starting conversion...`);
 
     setResults((prev) => [
       ...prev,
@@ -33,34 +127,25 @@ function App() {
 
     try {
       // Read file as array buffer
-      console.log(`[${originalName}] Reading file...`);
       const arrayBuffer = await file.arrayBuffer();
       const uint8Array = new Uint8Array(arrayBuffer);
-      console.log(`[${originalName}] File read: ${uint8Array.length} bytes`);
 
       // Create temporary file path
-      console.log(`[${originalName}] Getting app cache directory...`);
       const { appCacheDir } = await import("@tauri-apps/api/path");
       const tempDir = await appCacheDir();
       const tempInputPath = `${tempDir}/input_${Date.now()}_${file.name}`;
-      console.log(`[${originalName}] Temp path: ${tempInputPath}`);
 
       // Create cache directory if it doesn't exist
-      console.log(`[${originalName}] Ensuring cache directory exists...`);
       const { exists, mkdir, writeFile } = await import("@tauri-apps/plugin-fs");
       const dirExists = await exists(tempDir);
       if (!dirExists) {
-        console.log(`[${originalName}] Creating cache directory: ${tempDir}`);
         await mkdir(tempDir, { recursive: true });
       }
 
       // Write input file
-      console.log(`[${originalName}] Writing temp file...`);
       await writeFile(tempInputPath, uint8Array);
-      console.log(`[${originalName}] Temp file written successfully`);
 
       // Ask user where to save
-      console.log(`[${originalName}] Opening save dialog...`);
       const outputPath = await save({
         defaultPath: file.name.replace(/\.[^/.]+$/, ".webp"),
         filters: [
@@ -72,7 +157,6 @@ function App() {
       });
 
       if (!outputPath) {
-        console.log(`[${originalName}] User cancelled`);
         setResults((prev) =>
           prev.map((r) =>
             r.original === originalName
@@ -82,24 +166,15 @@ function App() {
         );
         return;
       }
-      console.log(`[${originalName}] Output path: ${outputPath}`);
 
       // Execute cwebp command using sidecar
-      console.log(`[${originalName}] Executing cwebp command...`);
-      console.log(`[${originalName}] Command: binaries/cwebp`);
-      console.log(`[${originalName}] Args:`, [tempInputPath, "-o", outputPath]);
-
       const command = Command.sidecar("binaries/cwebp", [
         tempInputPath,
         "-o",
         outputPath,
       ]);
 
-      console.log(`[${originalName}] Running command...`);
       const output = await command.execute();
-      console.log(`[${originalName}] Command exit code: ${output.code}`);
-      console.log(`[${originalName}] stdout:`, output.stdout);
-      console.log(`[${originalName}] stderr:`, output.stderr);
 
       if (output.code === 0) {
         setResults((prev) =>
@@ -132,7 +207,6 @@ function App() {
       const { remove } = await import("@tauri-apps/plugin-fs");
       await remove(tempInputPath).catch(() => {});
     } catch (error) {
-      console.error("Conversion error:", error);
       const errorMessage = error instanceof Error
         ? error.message
         : typeof error === 'string'
@@ -173,6 +247,9 @@ function App() {
       "image/tiff": [".tiff", ".tif"],
     },
     multiple: true,
+    noClick: false,
+    noKeyboard: false,
+    noDrag: true, // Disable react-dropzone's drag handling to use Tauri's native drag and drop
   });
 
   return (

@@ -44,6 +44,8 @@
     "fs:allow-download-write-recursive",
     "fs:allow-picture-read",
     "fs:allow-picture-write",
-    "fs:allow-picture-write-recursive"
+    "fs:allow-picture-write-recursive",
+    "core:webview:allow-webview-position",
+    "core:webview:allow-webview-size"
   ]
 }
