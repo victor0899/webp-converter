@@ -267,14 +267,15 @@ function App() {
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-8">
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-4xl font-bold text-gray-800 mb-2 text-center">
-          Image to WebP Converter
-        </h1>
-        <p className="text-gray-600 mb-8 text-center">
-          Convert your images to WebP on your computer, for free
-        </p>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col">
+      <div className="flex-grow p-8">
+        <div className="max-w-4xl mx-auto">
+          <h1 className="text-4xl font-bold text-gray-800 mb-2 text-center">
+            Image to WebP Converter
+          </h1>
+          <p className="text-gray-600 mb-8 text-center">
+            Convert your images to WebP on your computer, for free
+          </p>
 
         {/* Quality Slider */}
         {/* <div className="bg-white rounded-lg shadow-md p-6 mb-6">
@@ -409,10 +410,11 @@ function App() {
             </button>
           </div>
         )}
+        </div>
       </div>
 
       {/* Footer with version */}
-      <footer className="mt-8 text-center">
+      <footer className="text-center py-4">
         <p className="text-sm text-gray-600">
           Version {version || "loading..."}
         </p>
