@@ -4,6 +4,7 @@ import { Command } from "@tauri-apps/plugin-shell";
 import { save } from "@tauri-apps/plugin-dialog";
 import { getVersion } from "@tauri-apps/api/app";
 import { getCurrentWebview } from "@tauri-apps/api/webview";
+import { revealItemInDir } from "@tauri-apps/plugin-opener";
 import "./App.css";
 
 interface ConversionResult {
@@ -14,7 +15,7 @@ interface ConversionResult {
 }
 
 function App() {
-  const [quality, setQuality] = useState(80);
+  const [_quality, _setQuality] = useState(80);
   const [results, setResults] = useState<ConversionResult[]>([]);
   const [isConverting, setIsConverting] = useState(false);
   const [version, setVersion] = useState<string>("");
@@ -227,6 +228,14 @@ function App() {
     }
   };
 
+  const openFile = async (path: string) => {
+    try {
+      await revealItemInDir(path);
+    } catch (error) {
+      console.error("Failed to open file location:", error);
+    }
+  };
+
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
       setIsConverting(true);
@@ -235,7 +244,7 @@ function App() {
       }
       setIsConverting(false);
     },
-    [quality]
+    []
   );
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -327,7 +336,13 @@ function App() {
                       {result.original}
                     </p>
                     {result.output && (
-                      <p className="text-sm text-gray-600">{result.output}</p>
+                      <button
+                        onClick={() => openFile(result.output)}
+                        className="text-sm text-blue-600 hover:text-blue-800 underline cursor-pointer text-left"
+                        title="Click to open file location"
+                      >
+                        {result.output}
+                      </button>
                     )}
                     {result.message && (
                       <p
